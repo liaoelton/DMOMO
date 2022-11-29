@@ -5,3 +5,5 @@ g++ -w -pipe -pthread -Wall -W -DNO_DEBUG -o MO_GOMEA MO_GOMEA_ORIG.cpp
 
 # KILL ALL MOGOMEA process
 ps -A | grep MO_GOMEA | awk '{print $1}' | xargs kill -9 $1
+
+git diff > $LOG_DIR/${EXP_ID}.diff
