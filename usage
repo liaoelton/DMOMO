@@ -1,0 +1,7 @@
+
+./MO_GOMEA_modified -r 2 2 100 2000 5000000 500000 1
+
+g++ -w -pipe -pthread -Wall -W -DNO_DEBUG -o MO_GOMEA MO_GOMEA_ORIG.cpp
+
+# KILL ALL MOGOMEA process
+ps -A | grep MO_GOMEA | awk '{print $1}' | xargs kill -9 $1
