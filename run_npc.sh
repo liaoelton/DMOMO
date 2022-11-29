@@ -51,8 +51,6 @@ do
 	echo All $num_parameters maxcut tasks finished
 done
 
-#!/bin/bash
-
 for num_parameters in {100,250,500,750}
 do
     if [ $num_parameters -eq 100 ]; then

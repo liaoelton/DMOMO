@@ -1298,7 +1298,7 @@ void parseParameters( int argc, char **argv, int *index )
             sprintf( output_dir, "trap%d_result/%s/", number_of_parameters, exp_name);
             break;
         case KNAPSACK:
-            sprintf( output_dir, "knap%d_result/%s/", number_of_parameters, exp_name);
+            sprintf( output_dir, "knapsack%d_result/%s/", number_of_parameters, exp_name);
             break;
         case LOTZ:
             sprintf( output_dir, "lotz%d_result/%s/", number_of_parameters, exp_name);
