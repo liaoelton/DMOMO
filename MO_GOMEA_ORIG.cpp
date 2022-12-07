@@ -125,6 +125,7 @@ void writeCurrentHistory();
 void writeCurrentAngle(double angle, bool is_FI);
 void writeCurrentLevel(double level, bool is_FI);
 void writeCurrentChangeBits(int len, bool is_FI, int mask);
+void writeCurrentDistance(double dist, bool success);
 void writeCurrentMask(int cluster_index, int linkage_group_index, char *result, char *backup);
 void logElitistArchiveAtSpecificPoints();
 char checkTerminationCondition();
@@ -434,6 +435,8 @@ void performForceImprovement( int cluster_index, char *parent, double *parent_ob
 
             linkage_group_index = order[i];
 
+            double dist = sqrt((obj[0]-elitist_archive_objective_values[donor_index][0])*(obj[0]-elitist_archive_objective_values[donor_index][0])+(obj[1]-elitist_archive_objective_values[donor_index][1])*(obj[1]-elitist_archive_objective_values[donor_index][1]));
+
             /* ORIG MIXING */
 
             copyValuesFromDonorToOffspring(result, elitist_archive[donor_index], cluster_index, linkage_group_index);
@@ -516,11 +519,13 @@ void performForceImprovement( int cluster_index, char *parent, double *parent_ob
                     writeCurrentChangeBits(change_bits_cnt, true, mask_len);
                     double angle = getAngle(elitist_archive_objective_values[donor_index], obj_backup, obj);
                     writeCurrentAngle(angle, true);
+                    writeCurrentDistance(dist, true);
                 }
                 /* Check for (strict) Pareto domination. */
-                if ( constraintParetoDominates( obj, *con, obj_backup, con_backup) )
+                if ( constraintParetoDominates( obj, *con, obj_backup, con_backup) ) {
+                    writeCurrentDistance(dist, true);
                     is_improved = TRUE;
-
+                }
                 /* Check if a truly new non-dominated solution is created. */
                 if(is_new_nondominated_point)
                     is_improved = TRUE;
@@ -541,12 +546,14 @@ void performForceImprovement( int cluster_index, char *parent, double *parent_ob
                     }
                     total_cnt++;
                     // 1103  mark break to test if FI not stop early
-                    if (!doMOGOM){
-                        break;
-                    }
+                    // if (!doMOGOM){
+                    //     break;
+                    // }
                 }
-                else
+                else{
                     copyFromAToB(backup, obj_backup, con_backup, result, obj, con);
+                    writeCurrentDistance(dist, false);
+                }
             }
             // COMPLEMENT (better)
             // EVERYTIME -> better than anti-mutation at beginnning, almost same in the end
@@ -2220,6 +2227,22 @@ void writeCurrentChangeBits(int len, bool is_FI, int mask)
     fclose( file );
 }
 
+void writeCurrentDistance(double dist, bool success)
+{
+    int   i, j, k, index;
+    char  string[1000];
+    FILE *file;
+    if(success)
+        sprintf( string, "%sresult%d/distance_FI_success_gen_%d.dat", output_dir, runTimes, int(gen_now/1000) );
+    else
+        sprintf( string, "%sresult%d/distance_FI_not_success_gen_%d.dat", output_dir, runTimes, int(gen_now/1000) );
+
+    file = fopen( string, "a" );
+    sprintf( string, "%f ", dist );
+    fputs( string, file );
+    fclose( file );
+}
+
 
 void writeCurrentElitistArchiveFrom( char final )
 {
@@ -3866,13 +3889,17 @@ void improveCurrentPopulation( void )
             bool doMOGOM = false;
             int elitist_num = elitist_num_history.size();
             
-            if(elitist_num >= 3){
-                if(elitist_num_history[elitist_num-1] == elitist_num_history[elitist_num-2]
-                 && elitist_num_history[elitist_num-2] == elitist_num_history[elitist_num-3]
-                 ){
-                    doMOGOM = true;
-                }
-            }
+            // if(elitist_num >= 3){
+            //     if(elitist_num_history[elitist_num-1] == elitist_num_history[elitist_num-2]
+            //      && elitist_num_history[elitist_num-2] == elitist_num_history[elitist_num-3]
+            //      ){
+            //         doMOGOM = true;
+            //     }
+            // }
+
+            // if(number_of_evaluations >= 3*maximum_number_of_evaluations/4){
+            //     doMOGOM = true;
+            // }
 
             // if (doMOGOM)
             //     printf("in not stop scheme\n");
